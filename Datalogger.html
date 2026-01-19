@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teensy 4.1 Ocean Sensor Dashboard - Engineering Flowchart</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: white;
+            overflow-x: hidden;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        .header { background: linear-gradient(to right, #1e3a8a, #581c87); padding: 30px; text-align: center; border-bottom: 4px solid #00e1ff; }
+        .header h1 { font-size: 32px; color: #00e1ff; margin-bottom: 10px; }
+        .tabs { display: flex; justify-content: center; gap: 10px; padding: 20px; background: #1a1a2e; flex-wrap: wrap; }
+        .tab { padding: 15px 30px; background: #374151; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: all 0.3s; }
+        .tab:hover { background: #4b5563; }
+        .tab.active { background: #00e1ff; color: #1a1a2e; }
+        .content { padding: 30px; min-height: 600px; }
+        .section { background: rgba(255,255,255,0.1); padding: 25px; border-radius: 12px; margin-bottom: 25px; border: 2px solid; }
+        .section h2 { font-size: 24px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
+        .grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
+        .box { background: rgba(0,0,0,0.4); padding: 15px; border-radius: 8px; }
+        .box h3 { color: #67e8f9; font-size: 16px; margin-bottom: 10px; }
+        .box ul { list-style: none; color: #d1d5db; font-size: 14px; line-height: 1.8; }
+        .arrow { text-align: center; font-size: 32px; color: #00e1ff; margin: 20px 0; }
+        code { background: #000; padding: 15px; border-radius: 6px; display: block; color: #4ade80; font-size: 13px; line-height: 1.6; }
+        .blue { border-color: #3b82f6; background: linear-gradient(to right, #1e3a8a, #1e40af); }
+        .purple { border-color: #a855f7; background: linear-gradient(to right, #581c87, #6b21a8); }
+        .green { border-color: #22c55e; background: linear-gradient(to right, #14532d, #166534); }
+        .orange { border-color: #f97316; background: linear-gradient(to right, #7c2d12, #9a3412); }
+        .pink { border-color: #ec4899; background: linear-gradient(to right, #831843, #9f1239); }
+        .gray { border-color: #6b7280; background: #374151; }
+        .view { display: none; }
+        .view.active { display: block; }
+        .footer { background: #1a1a2e; padding: 15px; text-align: center; color: #9ca3af; font-size: 13px; border-top: 2px solid #374151; }
+        @media print { body { background: white; color: black; } .tabs, .footer { display: none; } }
+        @media (max-width: 768px) { .grid2, .grid3, .grid4 { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🌊 Teensy 4.1 Ocean Sensor Dashboard</h1>
+        <p>Complete Engineering Flowchart & Architecture Documentation</p>
+    </div>
+
+    <div class="tabs">
+        <button class="tab active" onclick="showView('overview')">🏗️ System Architecture</button>
+        <button class="tab" onclick="showView('dataflow')">🔄 Data Flow Pipeline</button>
+        <button class="tab" onclick="showView('state')">🔀 State Machine</button>
+        <button class="tab" onclick="showView('functions')">⚙️ Functions</button>
+    </div>
+
+    <div class="container content">
+        
+        <!-- VIEW 1: OVERVIEW -->
+        <div id="overview" class="view active">
+            <div class="section blue">
+                <h2>⚡ TEENSY 4.1 HARDWARE LAYER</h2>
+                <div class="grid2">
+                    <div class="box">
+                        <h3>📡 Sensors Connected:</h3>
+                        <ul>
+                            <li>• pH Sensor (scaled ×100)</li>
+                            <li>• Dissolved Oxygen (scaled ×10)</li>
+                            <li>• Temperature (scaled ×50)</li>
+                            <li>• Pressure (scaled ×1000)</li>
+                        </ul>
+                    </div>
+                    <div class="box">
+                        <h3>💾 Data Storage:</h3>
+                        <ul>
+                            <li>• SD Card (onboard)</li>
+                            <li>• 30-minute intervals</li>
+                            <li>• ~4,320 readings/90 days</li>
+                            <li>• $Params protocol format</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="arrow">↓</div>
+
+            <div class="section purple">
+                <h2>📡 SERIAL COMMUNICATION (115200 BAUD)</h2>
+                <div class="grid3">
+                    <div class="box">
+                        <h3>📤 Teensy → GUI</h3>
+                        <ul>
+                            <li>• $Params data stream</li>
+                            <li>• Heartbeat updates</li>
+                            <li>• Status messages</li>
+                            <li>• SD download data</li>
+                        </ul>
+                    </div>
+                    <div class="box">
+                        <h3>📥 GUI → Teensy</h3>
+                        <ul>
+                            <li>• DOWNLOAD_SD command</li>
+                            <li>• Configuration requests</li>
+                        </ul>
+                    </div>
+                    <div class="box">
+                        <h3>🔄 Threading</h3>
+                        <ul>
+                            <li>• Continuous read thread</li>
+                            <li>• Non-blocking operations</li>
+                            <li>• Thread-safe updates</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="arrow">↓</div>
+
+            <div class="section green">
+                <h2>🖥️ PYTHON GUI APPLICATION (Tkinter)</h2>
+                <div class="grid2">
+                    <div class="box">
+                        <h3>🖥️ Display Features:</h3>
+                        <ul>
+                            <li>• Real-time sensor values</li>
+                            <li>• Live text console</li>
+                            <li>• Status indicators</li>
+                            <li>• Connection management</li>
+                        </ul>
+                    </div>
+                    <div class="box">
+                        <h3>⚙️ Processing:</h3>
+                        <ul>
+                            <li>• Data parsing (×100, ×10, etc.)</li>
+                            <li>• SAVED flag detection</li>
+                            <li>• Timestamp generation</li>
+                            <li>• Error handling</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="arrow">↓</div>
+
+            <div class="grid2">
+                <div class="section orange">
+                    <h2>💾 DATA STORAGE</h2>
+                    <div class="box">
+                        <h3>📝 Continuous CSV</h3>
+                        <p style="color:#d1d5db; font-size:14px;">Auto-saves 30-min readings</p>
+                    </div>
+                    <div class="box">
+                        <h3>💾 Memory Buffer</h3>
+                        <p style="color:#d1d5db; font-size:14px;">Last 10,000 readings</p>
+                    </div>
+                    <div class="box">
+                        <h3>📥 SD Download</h3>
+                        <p style="color:#d1d5db; font-size:14px;">Remote data retrieval</p>
+                    </div>
+                </div>
+
+                <div class="section pink">
+                    <h2>📊 VISUALIZATION</h2>
+                    <div class="box">
+                        <h3>📊 Live Graphs</h3>
+                        <p style="color:#d1d5db; font-size:14px;">4-panel real-time plots</p>
+                    </div>
+                    <div class="box">
+                        <h3>📈 SD Graphs</h3>
+                        <p style="color:#d1d5db; font-size:14px;">Historical data analysis</p>
+                    </div>
+                    <div class="box">
+                        <h3>💾 Export Options</h3>
+                        <p style="color:#d1d5db; font-size:14px;">PNG, PDF, CSV formats</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW 2: DATA FLOW -->
+        <div id="dataflow" class="view">
+            <div class="section blue">
+                <h2>STAGE 1: DATA ACQUISITION</h2>
+                <p style="color:#67e8f9; margin-bottom:15px;">Every 30 minutes</p>
+                <div class="grid4">
+                    <div class="box"><h3>pH Sensor</h3><p style="color:#d1d5db;">Raw → ×100</p><p style="color:#4ade80;">Example: 7.42</p></div>
+                    <div class="box"><h3>DO Sensor</h3><p style="color:#d1d5db;">Raw → ×10</p><p style="color:#4ade80;">Example: 8.5 mg/L</p></div>
+                    <div class="box"><h3>Temp Sensor</h3><p style="color:#d1d5db;">Raw → ×50</p><p style="color:#4ade80;">Example: 22.4°C</p></div>
+                    <div class="box"><h3>Pressure</h3><p style="color:#d1d5db;">Raw → ×1000</p><p style="color:#4ade80;">Example: 1013 mbar</p></div>
+                </div>
+            </div>
+
+            <div class="arrow">↓</div>
+
+            <div class="section purple">
+                <h2>STAGE 2: DATA ENCODING (Teensy)</h2>
+                <div class="box">
+                    <h3>Protocol Format:</h3>
+                    <code>$Params,742,85,1120,1013000,SAVED</code>
+                    <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin-top:15px; font-size:13px;">
+                        <div><p style="color:#67e8f9;">Header</p><p style="color:#9ca3af;">$Params</p></div>
+                        <div><p style="color:#67e8f9;">pH×100</p><p style="color:#9ca3af;">742</p></div>
+                        <div><p style="color:#67e8f9;">DO×10</p><p style="color:#9ca3af;">85</p></div>
+                        <div><p style="color:#67e8f9;">Temp×50</p><p style="color:#9ca3af;">1120</p></div>
+                        <div><p style="color:#67e8f9;">Press×1000</p><p style="color:#9ca3af;">1013000</p></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="arrow">↓</div>
+
+            <div class="section green">
+                <h2>STAGE 3: SERIAL TRANSMISSION</h2>
+                <div class="grid2">
+                    <div class="box">
+                        <h3>Transmission Details:</h3>
+                        <ul>
+                            <li>• Baud Rate: 115200</li>
+                            <li>• Protocol: USB Serial</li>
+                            <li>• Encoding: UTF-8</li>
+                            <li>• Line Terminator: \n</li>
+                        </ul>
+                    </div>
+                    <div class="box">
+                        <h3>Data Types:</h3>
+                        <ul>
+                            <li>• Saved readings (30-min)</li>
+                            <li>• Heartbeat updates (live)</li>
+                            <li>• Status messages</li>
+                            <li>• SD download streams</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="arrow">↓</div>
+
+            <div class="section orange">
+                <h2>STAGE 4: PYTHON RECEPTION & PARSING</h2>
+                <div class="box">
+                    <h3>Read Thread Process:</h3>
+                    <ol style="color:#d1d5db; font-size:14px; line-height:1.8; padding-left:20px;">
+                        <li>Continuous serial.readline() in background thread</li>
+                        <li>UTF-8 decode with error handling</li>
+                        <li>Protocol detection: $Params, SD_DOWNLOAD, etc.</li>
+                        <li>Thread-safe GUI update via root.after()</li>
+                    </ol>
+                    <code style="margin-top:15px;">parts = line.split(',')
+current_ph = float(parts[1]) / 100.0
+current_do = float(parts[2]) / 10.0
+current_temp = float(parts[3]) / 50.0
+current_pressure = float(parts[4]) / 1000.0</code>
+                </div>
+            </div>
+
+            <div class="arrow">↓</div>
+
+            <div class="section pink">
+                <h2>STAGE 5: STORAGE & DISPLAY</h2>
+                <div class="grid3">
+                    <div class="box">
+                        <h3>GUI Display</h3>
+                        <ul>
+                            <li>✓ Real-time labels</li>
+                            <li>✓ Text console</li>
+                            <li>✓ Status updates</li>
+                            <li>✓ Color-coded</li>
+                        </ul>
+                    </div>
+                    <div class="box">
+                        <h3>CSV Storage</h3>
+                        <ul>
+                            <li>✓ Continuous file</li>
+                            <li>✓ Auto-flush</li>
+                            <li>✓ Timestamped</li>
+                            <li>✓ SAVED flag</li>
+                        </ul>
+                    </div>
+                    <div class="box">
+                        <h3>Memory Buffer</h3>
+                        <ul>
+                            <li>✓ List storage</li>
+                            <li>✓ 10K limit</li>
+                            <li>✓ Dict format</li>
+                            <li>✓ Graphing ready</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW 3: STATE MACHINE -->
+        <div id="state" class="view">
+            <div class="section gray">
+                <h2>❌ STATE: DISCONNECTED</h2>
+                <div class="grid2">
+                    <div class="box">
+                        <h3>Global Variables:</h3>
+                        <ul>
+                            <li>• ser = None</li>
+                            <li>• is_reading = False</li>
+                            <li>• read_thread = None</li>
+                            <li>• sensor_data_list = []</li>
+                        </ul>
+                    </div>
+                    <div class="box">
+                        <h3>UI State:</h3>
+                        <ul>
+                            <li>• Connect button: Enabled</li>
+                            <li>• Download SD: Disabled</li>
+                            <li>• Live Graph: Disabled</li>
+                            <li>• Status: Red (Not Connected)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="arrow">↓ USER CLICKS: Connect to Teensy</div>
+
+            <div class="section blue">
+                <h2>⚙️ PROCESS: Connection Sequence</h2>
+                <div class="box">
+                    <ol style="color:#d1d5db; font-size:14px; line-height:2; padding-left:20px;">
+                        <li><strong style="color:#67e8f9;">find_teensy_port()</strong> - Scans USB ports for Teensy (VID=0x16C0)</li>
+                        <li><strong style="color:#67e8f9;">Create CSV File</strong> - teensy_30min_readings_YYYYMMDD_HHMMSS.csv</li>
+                        <li><strong style="color:#67e8f9;">Open Serial Port</strong> - serial.Serial(port, 115200, timeout=1.0)</li>
+                        <li><strong style="color:#67e8f9;">Start Read Thread</strong> - threading.Thread(target=read_serial_data, daemon=True)</li>
+                        <li><strong style="color:#67e8f9;">Update UI State</strong> - Enable buttons, set status to "Connected"</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="arrow">↓</div>
+
+            <div class="section green">
+                <h2>✅ STATE: CONNECTED & MONITORING</h2>
+                <div class="grid2">
+                    <div class="box">
+                        <h3>Background Thread Loop:</h3>
+                        <code>while is_reading:
+  if ser.in_waiting > 0:
+    line = ser.readline()
+    root.after(0, update_display, line)
+  sleep(0.02)</code>
+                    </div>
+                    <div class="box">
+                        <h3>Available Operations:</h3>
+                        <ul>
+                            <li>✓ Receive data continuously</li>
+                            <li>✓ Download SD card</li>
+                            <li>✓ View live graphs</li>
+                            <li>✓ Export CSV data</li>
+                            <li>✓ Disconnect</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid2">
+                <div class="section purple">
+                    <h2>📥 SD DOWNLOAD</h2>
+                    <div class="box">
+                        <ol style="color:#d1d5db; font-size:13px; line-height:1.8; padding-left:20px;">
+                            <li>User clicks Download SD</li>
+                            <li>Select save location</li>
+                            <li>Send "DOWNLOAD_SD\n"</li>
+                            <li>Set sd_download_active=True</li>
+                            <li>Buffer incoming lines</li>
+                            <li>Wait for SD_DOWNLOAD_END</li>
+                            <li>Save buffer to file</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="section orange">
+                    <h2>📊 LIVE GRAPHING</h2>
+                    <div class="box">
+                        <ol style="color:#d1d5db; font-size:13px; line-height:1.8; padding-left:20px;">
+                            <li>User clicks Live Graph</li>
+                            <li>Check sensor_data_list</li>
+                            <li>Create Toplevel window</li>
+                            <li>Parse timestamps & values</li>
+                            <li>Plot 4-panel matplotlib</li>
+                            <li>Auto-refresh every 10 sec</li>
+                            <li>Export options available</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW 4: FUNCTIONS -->
+        <div id="functions" class="view">
+            <div class="section blue">
+                <h2>📡 SERIAL COMMUNICATION FUNCTIONS</h2>
+                <div class="grid2">
+                    <div class="box">
+                        <h3>find_teensy_port()</h3>
+                        <p style="color:#d1d5db; margin:8px 0;">Auto-detects Teensy via USB</p>
+                        <ul>
+                            <li>• Scans serial.tools.list_ports</li>
+                            <li>• Checks for "teensy" in description</li>
+                            <li>• Checks VID = 0x16C0</li>
+                            <li>• Returns port device string</li>
+                        </ul>
+                    </div>
+                    <div class="box">
+                        <h3>read_serial_data()</h3>
+                        <p style="color:#d1d5db; margin:8px 0;">Background thread loop</p>
+                        <ul>
+                            <li>• Continuous while loop</li>
+                            <li>• Non-blocking readline()</li>
+                            <li>• UTF-8 decoding</li>
+                            <li>• Thread-safe GUI updates</li>
+                        </ul>
+                    </div>
+                    <div class="box">
+                        <h3>connect_teensy()</h3>
+                        <p style="color:#d1d5db; margin:8px 0;">Initialize connection</p>
+                        <ul>
+                            <li>• Find port automatically</li>
+                            <li>• Create CSV file</li>
+                            <li>• Open serial at 115200 baud</li>
+                            <li>• Start read thread</li>
+                        </ul>
+                    </div>
+                    <div class="box">
+                        <h3>disconnect_teensy()</h3>
+                        <p style="color:#d1d5db; margin:8px 0;">Safe shutdown</p>
+                        <ul>
+                            <li>• Stop read thread</li>
+                            <li>• Close CSV files</li>
+                            <li>• Close serial port</li>
+                            <li>• Update UI state</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section green">
+                <h2>⚙️ DATA PROCESSING FUNCTIONS</h2>
+                <div class="grid2">
+                    <div class="box">
+                        <h3>update_display(line)</h3>
+                        <p style="color:#d1d5db; margin:8px 0;">Parse & display data</p>
+                        <ul>
+                            <li>• Detect $Params protocol</li>
+                            <li>• Apply scaling (÷100, ÷10, etc.)</li>
+                            <li>• Check SAVED flag</li>
+                            <li>• Update GUI labels</li>
+                            <li>• Handle SD download protocol</li>
+                        </ul>
+                    </div>
+                    <div class="box">
+                        <h3>save_sensor_data()</h3>
+                        <p style="color:#d1d5db; margin:8px 0;">Store readings</p>
+                        <ul>
+                            <li>• Append to sensor_data_list</li>
+                            <li>• Write to continuous CSV</li>
+                            <li>• Flush file buffer</li>
+                            <li>• Update data counter</li>
+                            <li>• Maintain 10K limit</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section purple">
+                <h2>💾 DOWNLOAD & EXPORT FUNCTIONS</h2>
+                <div class="grid2">
+                    <div class="box">
+                        <h3>download_sd_card()</h3>
+                        <p style="color:#d1d5db; margin:8px 0;">Retrieve SD data remotely</p>
+                        <ul>
+                            <li>• User selects save location</li>
+                            <li>• Send "DOWNLOAD_SD\n"</li>
+                            <li>• Set sd_download_active</li>
+                            <li>• Buffer incoming lines</li>
+                            <li>• Wait for END signal</li>
+                        </ul>
+                    </div>
+                    <div class="box">
+                        <h3>download_data()</h3>
+                        <p style="color:#d1d5db; margin:8px 0;">Export GUI readings</p>
+                        <ul>
+                            <li>• Check sensor_data_list</li>
+                            <li>• User selects CSV path</li>
+                            <li>• Write all readings</li>
+                            <li>• Include headers</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section orange">
+                <h2>📊 VISUALIZATION FUNCTIONS</h2>
+                <div class="grid2">
+                    <div class="box">
+                        <h3>open_graph_window()</h3>
+                        <p style="color:#d1d5db; margin:8px 0;">Live data plotting</p>
+                        <ul>
+                            <li>• Create Toplevel window</li>
+                            <li>• Parse sensor_data_list</li>
+                            <li>• Plot 4-panel graphs</li>
+                            <li>• Auto-refresh every 10s</li>
+                            <li>• Export PNG/PDF/CSV</li>
+                        </ul>
+                    </div>
+                    <div class="box">
+                        <h3>open_sd_graph_window()</h3>
+                        <p style="color:#d1d5db; margin:8px 0;">SD file visualization</p>
+                        <ul>
+                            <li>• Load SD text file</li>
+                            <li>• Parse $Params format</li>
+                            <li>• Create matplotlib plots</li>
+                            <li>• Export capabilities</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="box" style="margin-top:15px;">
+                    <h3>plot_sensor_graphs()</h3>
+                    <p style="color:#d1d5db; margin:8px 0;">Helper function for graphing</p>
+                    <ul>
+                        <li>• Creates 2x2 subplot grid (pH, DO, Temp, Pressure)</li>
+                        <li>• Dark theme styling (#001F33 background)</li>
+                        <li>• Time-formatted x-axis</li>
+                        <li>• Color-coded plots with markers</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        📡 115200 BAUD | ⏰ 30-Min Intervals | 💾 Dual Storage (SD + CSV) | 📊 Real-Time Visualization | 📥 Remote Download
+    </div>
+
+    <script>
+        function showView(viewId) {
+            // Hide all views
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            
+            // Show selected view
+            document.getElementById(viewId).classList.add('active');
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>
